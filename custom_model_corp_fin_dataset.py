@@ -2,6 +2,10 @@ from io import BytesIO
 import tiktoken
 from openai import AsyncOpenAI
 import google
+from google.genai import types
+import google.generativeai as genai
+
+# import google.generativeai as genai
 import os
 import asyncio
 from vals import Suite, Run, RunParameters
@@ -73,7 +77,7 @@ async def call_model(
         return await google_client.aio.models.generate_content(
             model=model_key,
             contents=[prompt],
-            generation_config=generation_config,
+            config=generation_config,
         )
 
     elif provider == "openai":
@@ -93,7 +97,15 @@ async def call_model(
         raise ValueError(f"Provider {provider} not supported")
 
 
-def read_output(output):
+def read_output(provider, output):
+    if provider == "google":
+        return {
+            "llm_output": output.text,
+            "metadata": {
+                "in_tokens": output.usage_metadata.prompt_token_count,
+                "out_tokens": output.usage_metadata.candidates_token_count,
+            },
+        }
     return {
         "llm_output": output.choices[0].message.content,
         "metadata": {
@@ -103,16 +115,15 @@ def read_output(output):
     }
 
 
-async def custom_model(model_name, parameters, *args, **kwargs):
+def get_custom_model(model_name, parameters, *args, **kwargs):
     system_prompt = parameters.get("system_prompt", "")
     temperature = parameters.get("temperature", 0)
     max_tokens = parameters.get("max_output_tokens", 512)
+    provider, model_key = model_name.split("/")
 
     async def custom_call(
         test_input: str, files: dict[str, BytesIO], context: dict[str, any]
     ):
-        model_key, provider = model_name.split("/")
-
         doc = get_doc(model_name, files)
         prompt = INSTRUCTION.format(question=test_input, document=doc)
 
@@ -120,7 +131,7 @@ async def custom_model(model_name, parameters, *args, **kwargs):
             output = await call_model(
                 model_key, provider, prompt, temperature, max_tokens, system_prompt
             )
-            out = read_output(output)
+            out = read_output(provider, output)
             return out
         except Exception as e:
             print(e)
@@ -132,27 +143,29 @@ async def custom_model(model_name, parameters, *args, **kwargs):
 if __name__ == "__main__":
 
     async def main():
-        mapping_suite_ids = {
-            "exact_pages_task": "corp_fin_v2",
-            "shared_max_context_task": "corp_fin_v2_diverse",
-            "max_fitting_context_task": "corp_fin_v2_max_fitting_context",
-        }
+        # Replace the mapping_suite_ids with the mapping we provided you by email.
+        mapping_suite_ids = {}
 
-        model_under_test = "google/gemini-2.0-flash-001"
+        task = "max_fitting_context_task"
+        model_under_test = "google/gemini-1.5-pro-002"
         eval_model = "openai/gpt-4o"
 
         parameters = RunParameters(
             eval_model=eval_model,
-            system_prompt="You are a helpful assistant.",
             temperature=0,
-            max_output_tokens=512,
-            parallelism=5,
+            max_output_tokens=1024,
+            parallelism=20,
         )
 
-        custom_model = custom_model(model_under_test, parameters.model_dump())
+        custom_model = get_custom_model(model_under_test, parameters.model_dump())
 
-        suite = await Suite.from_id("corp_fin_v2")
-        await suite.run(model=custom_model, parameters=parameters, upload_concurrency=5)
+        suite = await Suite.from_id(mapping_suite_ids[task])
+        await suite.run(
+            model=custom_model,
+            model_name=model_under_test,
+            parameters=parameters,
+            upload_concurrency=10,
+        )
 
         # To resume a run that crashed
         # run = await Run.from_id("run_id")
