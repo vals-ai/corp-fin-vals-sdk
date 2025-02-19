@@ -6,6 +6,8 @@ For more details on the benchmark, please refer to the our public website where 
 
 ## Running the benchmark
 
+Aside from usual providers' SDKs, you will need to install our SDK using the command `pip install valsai`.
+
 Here are our SDK specific parameters:
 - `eval_model`: The model to used as LLM as judge for the evaluation of the model under test's outputs.
 - `parallelism`: The number of concurrent calls to the API to get the model's outputs and evaluate them.
