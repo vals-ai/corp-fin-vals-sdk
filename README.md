@@ -4,9 +4,13 @@ Our CorpFin benchmark is run via SDK because it requires different parsing of th
 
 For more details on the benchmark, please refer to the our public website where we report the results [vals.ai](https://www.vals.ai/home).
 
-## Running the benchmark
+## Set up
 
 Aside from usual providers' SDKs, you will need to install our SDK using the command `pip install valsai`.
+
+Make an account on [platform.vals.ai](https://www.platform.vals.ai/auth) with your company email address. Go to the admin page and create a new API key for yourself. Make an environment variable for `VALS_API_KEY` with this key.
+
+## Running the benchmark
 
 Here are our SDK specific parameters:
 - `eval_model`: The model to used as LLM as judge for the evaluation of the model under test's outputs.
