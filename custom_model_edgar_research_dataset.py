@@ -2,6 +2,7 @@ from io import BytesIO
 from openai import AsyncOpenAI
 
 import asyncio
+import tiktoken
 from vals import Suite, Run, RunParameters
 
 from providers_configs import provider_args
@@ -41,11 +42,21 @@ def read_output(output):
         },
     }
 
+def trim_prompt(prompt, max_tokens):
+    encoding = tiktoken.encoding_for_model("gpt-4o")
+    tokens = encoding.encode(prompt)
+    if len(tokens) > max_tokens:
+        tokens = tokens[:max_tokens]
+        prompt = encoding.decode(tokens)
+    return prompt
 
-def get_custom_model(model_name, parameters, *args, **kwargs):
+
+def get_custom_model(model_name, parameters, extra_parameters={}, *args, **kwargs):
     system_prompt = parameters.get("system_prompt", "")
     temperature = parameters.get("temperature", 0)
     max_tokens = parameters.get("max_output_tokens", 512)
+    trim_documents = extra_parameters.get("trim_documents", False)
+    max_length = extra_parameters.get("max_length", 950000)
     provider, model_key = model_name.split("/", 1)
     client = AsyncOpenAI(**provider_args[provider])
 
@@ -53,6 +64,9 @@ def get_custom_model(model_name, parameters, *args, **kwargs):
         test_input: str, files: dict[str, BytesIO], context: dict[str, any]
     ):
         docs = get_docs_for_prompt(files)
+        if trim_documents:
+            docs = trim_prompt(docs, max_length)
+
         prompt = INSTRUCTION_EDGAR_RESEARCH.format(question=test_input, documents=docs)
 
         try:
@@ -83,8 +97,12 @@ if __name__ == "__main__":
             max_output_tokens=1024,
             parallelism=1,
         )
+        extra_parameters = {
+            "trim_documents": True,
+            "max_length": 950000,
+        }
 
-        custom_model = get_custom_model(model_under_test, parameters.model_dump())
+        custom_model = get_custom_model(model_under_test, parameters.model_dump(), extra_parameters)
 
         suite = await Suite.from_id(mapping_suite_ids[task])
         await suite.run(
