@@ -1,44 +1,22 @@
 from io import BytesIO
-import tiktoken
 from openai import AsyncOpenAI
 
 import asyncio
 from vals import Suite, Run, RunParameters
 
 from providers_configs import provider_args
-from prompts import INSTRUCTION_CORP_FIN
+from prompts import INSTRUCTION_EDGAR_RESEARCH
 
-def get_doc_type(model_name):
-    if "gpt-4o" or "Llama-3.3-70B-Instruct-Turbo" in model_name:
-        return "trimmed_openai"
-    elif "claude" in model_name:
-        return "trimmed_anthropic"
-    elif "gemini" in model_name:
-        return "full"
-    else:
-        raise ValueError(f"Model {model_name} not supported")
+def get_docs_for_prompt(files):
+    print("Getting docs1")
+    print(list(files.keys())[1], files[list(files.keys())[1]].read())
+    files_content = [file.read().decode("utf-8") for file_name, file in files.items() if file_name.endswith(".txt")]
+    print("Docs got1")
+    doc_prompt = ""
+    for i, file in enumerate(files_content):
+        doc_prompt += f"Document {i+1}: {file}\n\n"
 
-
-def get_doc(model_name, files):
-    if len(files) == 1:
-        return files[list(files.keys())[0]].read().decode("utf-8")
-    doc_type = get_doc_type(model_name)
-
-    matching_key = next(
-        (key for key in files.keys() if key.rsplit(".", 1)[0].endswith(doc_type)), None
-    )
-
-    if matching_key is None:
-        raise ValueError(f"No file found with key ending in '{doc_type}'")
-
-    document = files[matching_key].read().decode("utf-8")
-
-    if "gpt-4o" in model_name:
-        encoding = tiktoken.encoding_for_model("gpt-4o")
-        tokens = encoding.encode(document)[:125000]
-        return encoding.decode(tokens)
-
-    return document
+    return doc_prompt
 
 
 async def call_model(
@@ -77,8 +55,8 @@ def get_custom_model(model_name, parameters, *args, **kwargs):
     async def custom_call(
         test_input: str, files: dict[str, BytesIO], context: dict[str, any]
     ):
-        doc = get_doc(model_name, files)
-        prompt = INSTRUCTION_CORP_FIN.format(question=test_input, document=doc)
+        docs = get_docs_for_prompt(files)
+        prompt = INSTRUCTION_EDGAR_RESEARCH.format(question=test_input, documents=docs)
 
         try:
             output = await call_model(
@@ -98,15 +76,15 @@ if __name__ == "__main__":
         # Replace the mapping_suite_ids with the mapping we provided you by email.
         mapping_suite_ids = {}
 
-        task = "shared_max_context"
-        model_under_test = "together/meta-llama/Llama-3.3-70B-Instruct-Turbo"
-        eval_model = "anthropic/claude-3-5-sonnet-20241022"
+        task = "edgar_research"
+        model_under_test = "together/meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+        eval_model = "openai/gpt-4o"
 
         parameters = RunParameters(
             eval_model=eval_model,
             temperature=0,
             max_output_tokens=1024,
-            parallelism=2,
+            parallelism=1,
         )
 
         custom_model = get_custom_model(model_under_test, parameters.model_dump())
