@@ -8,10 +8,7 @@ from providers_configs import provider_args
 from prompts import INSTRUCTION_EDGAR_RESEARCH
 
 def get_docs_for_prompt(files):
-    print("Getting docs1")
-    print(list(files.keys())[1], files[list(files.keys())[1]].read())
     files_content = [file.read().decode("utf-8") for file_name, file in files.items() if file_name.endswith(".txt")]
-    print("Docs got1")
     doc_prompt = ""
     for i, file in enumerate(files_content):
         doc_prompt += f"Document {i+1}: {file}\n\n"
