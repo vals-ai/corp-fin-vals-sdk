@@ -1,0 +1,3 @@
+valsai==0.3.7
+model-library==0.1.2
+pypandoc
