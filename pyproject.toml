@@ -1,0 +1,27 @@
+[project]
+name = "corp-fin-vals-sdk"
+version = "0.1.0"
+description = "CorpFin Benchmark"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.12"
+
+dependencies = [
+  "valsai @ /home/orestesk/Vals/platform-be/sdk/",
+  "model-library==0.1.10",
+  "pypandoc",
+  "dotenv",
+]
+
+[dependency-groups]
+dev = [
+  # style
+  "ruff",
+  "basedpyright",
+]
+
+[tool.basedpyright]
+exclude = [
+  ".*",
+]
+reportExplicitAny = false
