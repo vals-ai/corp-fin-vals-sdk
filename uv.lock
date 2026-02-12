@@ -476,7 +476,7 @@ requires-dist = [
     { name = "dotenv" },
     { name = "model-library", specifier = "==0.1.10" },
     { name = "pypandoc" },
-    { name = "valsai", directory = "../platform-be/sdk" },
+    { name = "valsai", specifier = "==0.3.8" },
 ]
 
 [package.metadata.requires-dev]
@@ -2879,7 +2879,8 @@ wheels = [
 
 [[package]]
 name = "valsai"
-source = { directory = "../platform-be/sdk" }
+version = "0.3.8"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
     { name = "aiohttp" },
@@ -2901,43 +2902,9 @@ dependencies = [
     { name = "tabulate" },
     { name = "tqdm" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "aiofiles" },
-    { name = "aiohttp" },
-    { name = "asyncstdlib", specifier = ">=3.13.1" },
-    { name = "click" },
-    { name = "descope" },
-    { name = "gql" },
-    { name = "httpx" },
-    { name = "inspect-ai" },
-    { name = "model-library" },
-    { name = "opentelemetry-api" },
-    { name = "opentelemetry-exporter-otlp" },
-    { name = "opentelemetry-instrumentation" },
-    { name = "opentelemetry-sdk" },
-    { name = "pandas" },
-    { name = "pydantic" },
-    { name = "pytest-asyncio", specifier = ">=1.1.0" },
-    { name = "requests" },
-    { name = "tabulate" },
-    { name = "tqdm" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "ariadne-codegen", specifier = ">=0.17.0" },
-    { name = "basedpyright" },
-    { name = "ipykernel" },
-    { name = "openai" },
-    { name = "pytest" },
-    { name = "python-dotenv", specifier = ">=1.2.1" },
-    { name = "ruff" },
-]
-parsing = [
-    { name = "pypandoc-binary" },
-    { name = "pypdf" },
+sdist = { url = "https://files.pythonhosted.org/packages/ea/09/4ccee519c4120d372c989bc2a60baadffcc86353584e1ca5c815887fa1d5/valsai-0.3.8.tar.gz", hash = "sha256:c3f569e7f5e4c01512aece31bfe40658dd5a984a918d70d43ae322c24cd4ae7e", size = 328933, upload-time = "2025-12-05T22:38:11.68Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/16/81/90edbd037794c8dbb873acda780985f8cdebde52fe1d66efef1f95cf092f/valsai-0.3.8-py3-none-any.whl", hash = "sha256:2e8b3d942ea21d4f179330949ef445da5c1ed1b21915e79be989cbb1607c1f8a", size = 103036, upload-time = "2025-12-05T22:38:09.576Z" },
 ]
 
 [[package]]

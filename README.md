@@ -12,35 +12,49 @@ For more details on the benchmark, please refer to the our [public website](http
 
 ## Set up
 
-Install the requirements inside requirements.txt. We recommend doing this inside a Python 3.11 [Conda environment.](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+### Dependencies
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) for dependency management. Then run:
 
 ```
-pip install -r requirements.txt
+make install
+source .venv/bin/activate
 ```
+
+### Platform
 
 Make an account on [platform.vals.ai](https://www.platform.vals.ai/auth) with your company email address. Go to the admin page and create a new API key for yourself.
 
-Then run
+### Environment Variables
+
+Create a `.env` file in the root of the project and add the following:
 
 ```
-export VALS_API_KEY=<api_key>
+VALS_API_KEY=<api_key>
+ANTHROPIC_API_KEY=<anthropic_api_key>
+OPENAI_API_KEY=<openai_api_key>
+ETC_API_KEY=<etc_api_key>
 ```
 
-We recommend adding this to your ~/.bashrc or ~/.zshrc. You will also need to add environment variables for any providers you plan on using (e.g. `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.).
+The `.env` takes precedence over set environment variables.
 
 Finally, you should add the "Test Suite IDs" to suites.json. These should have generally been provided to you via email, but you can also find them in the platform, by navigating to the "Test Suites" page, clicking the relevant test suite, and looking on the right sidebar under "Test Suite ID".
 
 ## Running the benchmark
 
-To run the benchmark, simply do
+For a list of command line options, run `python main.py --help`
+
+To run, for example, the shared max context task on claude-sonnet-4-5-20250929, run:
 
 ```
-python run_corpfin.py --task shared_max_context --model anthropic/claude-sonnet-4-5-20250929
+python main.py --task shared_max_context --model anthropic/claude-sonnet-4-5-20250929
 ```
 
 You can also configure the evaluator model if desired - our public benchmarks use Sonnet 4.5.
 
-For the max fitting context window task, we generally add a buffer to our truncation to account for differences in token calculation for models. For example, if a model has a 400,000 token context window, and the buffer is set to 25,000, we will pass in the first 375,000 tokens to the model. You can configure this buffer using `--output-buffer <value>`.
+### List of Models
+
+A list of avaiable models can be found at our [model library](https://github.com/vals-ai/model-library/blob/main/model_library/config/all_models.json), and also by running `make browse-models` in the model library repository.
 
 To run your own harness or model, just modify the `get_custom_model` function as needed. You will need to implement a function that takes the text input and the documents
 and returns a response from the LLM. To see the full documentation on how the SDK works, visit [our docs](https://docs.vals.ai/sdk/running_suites).

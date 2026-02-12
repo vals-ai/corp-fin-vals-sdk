@@ -1,7 +1,8 @@
 import traceback
+from collections.abc import Callable
 from io import BytesIO
 from math import floor
-from typing import Any, Callable
+from typing import Any
 
 from model_library.base import LLM, LLMConfig, QueryResult, TextInput, TokenRetryParams
 from model_library.exceptions import MaxContextWindowExceededError
@@ -61,9 +62,7 @@ async def query_with_truncation_retry(
         raise ValueError("Non registry model cannot be used with truncation")
     context_window = get_context_window_for_model(model_name=registry_key)
     if not context_window:
-        raise ValueError(
-            f"Model {llm._registry_key} does not have a context window. Cannot use truncation."
-        )
+        raise ValueError(f"Model {llm._registry_key} does not have a context window. Cannot use truncation.")
 
     truncation_record = {
         "initial_context_window_truncation": 0,
@@ -104,32 +103,19 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
         override_config=override_config,
     )
 
-    if True:
-        from model_library.retriers.token import set_redis_client
-        from redis.asyncio import Redis as AsyncRedis
-
-        async_redis_client = AsyncRedis(
-            host="localhost", port=6379, decode_responses=True, max_connections=None
-        )
-
-        set_redis_client(async_redis_client)
+    token_retry_params = parameters.get("token_retry_params", None)
+    if token_retry_params:
         await model.init_token_retry(
-            token_retry_params=TokenRetryParams(
-                input_modifier=1, output_modifier=1, limit=40_000_000
-            )
+            token_retry_params=TokenRetryParams.model_validate(token_retry_params),
         )
 
-    async def custom_call(
-        test_input: str, files: dict[str, BytesIO], context: dict[str, Any]
-    ):
+    async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any]):
         try:
             # build prompt
             doc_content = await get_document_content(files)
 
             def build_prompt(document_text: str):
-                return INSTRUCTION_CORP_FIN.format(
-                    question=test_input, document=document_text
-                )
+                return INSTRUCTION_CORP_FIN.format(question=test_input, document=document_text)
 
             # query
             query_result, truncation_record = await query_with_truncation_retry(

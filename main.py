@@ -3,11 +3,10 @@ import json
 import logging
 
 import click
+from custom_model import get_custom_model
 from dotenv import load_dotenv
 from model_library import set_logging
 from vals import Run, RunParameters, Suite
-
-from custom_model import get_custom_model
 
 
 async def main(
@@ -22,18 +21,16 @@ async def main(
     parameters = RunParameters(
         model_under_test="corpfin",
         eval_model=eval_model,
-        parallelism=200,
+        parallelism=parallelism,
         max_output_tokens=max_tokens,
         temperature=temperature,
     )
 
-    with open("suites.json", "r") as f:
+    with open("suites.json") as f:
         mapping_suite_ids: dict[str, str] = json.load(f)
 
     if "REPLACE_ME" in mapping_suite_ids.values():
-        raise ValueError(
-            "Please replace the suite ids in suites.json with the suite IDs provided in the email."
-        )
+        raise ValueError("Please replace the suite ids in suites.json with the suite IDs provided in the email.")
 
     custom_model = await get_custom_model(
         model_name=model_under_test,
@@ -109,7 +106,7 @@ async def main(
     help="The temperature to use for the model",
 )
 def cli(*args, **kwargs):
-    load_dotenv()
+    load_dotenv(override=True)
     set_logging(True, level=logging.WARNING)
     asyncio.run(main(*args, **kwargs))
 
