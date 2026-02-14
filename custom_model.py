@@ -6,8 +6,7 @@ from typing import Any
 
 from model_library.base import LLM, LLMConfig, QueryResult, TextInput, TokenRetryParams
 from model_library.exceptions import MaxContextWindowExceededError
-from model_library.registry_utils import get_registry_model
-from model_library.utils import get_context_window_for_model
+from model_library.registry_utils import get_model_input_context_window, get_registry_model
 
 INSTRUCTION_CORP_FIN = """
 I will give you a question and a document.
@@ -60,9 +59,7 @@ async def query_with_truncation_retry(
     registry_key = llm._registry_key
     if not registry_key:
         raise ValueError("Non registry model cannot be used with truncation")
-    context_window = get_context_window_for_model(model_name=registry_key)
-    if not context_window:
-        raise ValueError(f"Model {llm._registry_key} does not have a context window. Cannot use truncation.")
+    context_window = get_model_input_context_window(model_name=registry_key)
 
     truncation_record = {
         "initial_context_window_truncation": 0,
