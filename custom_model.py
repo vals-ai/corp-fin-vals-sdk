@@ -87,7 +87,7 @@ async def query_with_truncation_retry(
             return (await llm.query(prompt), truncation_record)
         except MaxContextWindowExceededError:
             # record, shorten prompt, and try again
-            truncation_record["max_context_window_exceeded_error"] += 1
+            truncation_record["max_context_window_exceeded_error_truncation"] += 1
             prompt = shorten(0.9)
 
 
