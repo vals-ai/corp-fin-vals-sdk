@@ -474,9 +474,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "dotenv" },
-    { name = "model-library", specifier = "==0.1.10" },
+    { name = "model-library", specifier = "==0.1.11" },
     { name = "pypandoc" },
-    { name = "valsai", specifier = "==0.3.8" },
+    { name = "valsai", specifier = "==0.3.9" },
 ]
 
 [package.metadata.requires-dev]
@@ -1459,7 +1459,7 @@ wheels = [
 
 [[package]]
 name = "model-library"
-version = "0.1.10"
+version = "0.1.11"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ai21" },
@@ -1480,9 +1480,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "xai-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/80/6b/e0198a398f672b001ae9ea460258c5273124d7aa809806b7cd740b90d41d/model_library-0.1.10.tar.gz", hash = "sha256:c6aff551de8f8c8511068a886fdd0464f45aa6ad01c50aad7b3a34f20b76010b", size = 290240, upload-time = "2026-02-05T07:34:27.24Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ad/f0/99f3c6bcce7a12742888e90dc9b43e7d371a68fd424b21076e8bdf5bc22c/model_library-0.1.11.tar.gz", hash = "sha256:547559dda2437d0d63b774199b86d61658ffb7f1b0363e1886a17394694663b4", size = 297665, upload-time = "2026-02-16T23:31:19.941Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/be/66a46a607b4a8ca179724cd5b0525c8cc3e1e9aa3fe29c8fcb182f233dc5/model_library-0.1.10-py3-none-any.whl", hash = "sha256:178857b8e5bba6e3ec127c058a50558a0669e596950ceac9a45520e424fe3710", size = 144230, upload-time = "2026-02-05T07:34:25.903Z" },
+    { url = "https://files.pythonhosted.org/packages/77/70/182a6871e392cd9924f1982f82bb762799fd01f183632b541d0bddae3742/model_library-0.1.11-py3-none-any.whl", hash = "sha256:e6360bf80873d2d14be42db6f5204699e40f0424922687b0408bd2b70d01b761", size = 146553, upload-time = "2026-02-16T23:31:18.443Z" },
 ]
 
 [[package]]
@@ -2879,7 +2879,7 @@ wheels = [
 
 [[package]]
 name = "valsai"
-version = "0.3.8"
+version = "0.3.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiofiles" },
@@ -2902,9 +2902,9 @@ dependencies = [
     { name = "tabulate" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ea/09/4ccee519c4120d372c989bc2a60baadffcc86353584e1ca5c815887fa1d5/valsai-0.3.8.tar.gz", hash = "sha256:c3f569e7f5e4c01512aece31bfe40658dd5a984a918d70d43ae322c24cd4ae7e", size = 328933, upload-time = "2025-12-05T22:38:11.68Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/d0/eb49e666764ce7cd9b0162df0e3eca12d867605be9981445585111b8f335/valsai-0.3.9.tar.gz", hash = "sha256:3fdadf7b7db2caa2236f32b6d6c1ab3037f11f25d27ef4a418053f550bf8249a", size = 379451, upload-time = "2026-02-16T21:49:41.063Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/81/90edbd037794c8dbb873acda780985f8cdebde52fe1d66efef1f95cf092f/valsai-0.3.8-py3-none-any.whl", hash = "sha256:2e8b3d942ea21d4f179330949ef445da5c1ed1b21915e79be989cbb1607c1f8a", size = 103036, upload-time = "2025-12-05T22:38:09.576Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/a1/8a42aa75c1163d460cf636fd6ab58ac4801cd7d09176ac0236957f47e37a/valsai-0.3.9-py3-none-any.whl", hash = "sha256:47305ae1dc96b106126597b330b1f1979b51e031b1f6b26c3658baad8b2ab3f7", size = 107174, upload-time = "2026-02-16T21:49:39.85Z" },
 ]
 
 [[package]]
