@@ -44,10 +44,10 @@ Finally, you should add the "Test Suite IDs" to suites.json. These should have g
 
 For a list of command line options, run `python main.py --help`
 
-To run, for example, the shared max context task on claude-sonnet-4-5-20250929, run:
+To run, for example, the shared max context task on openai/gpt-5.2-2025-12-11, run:
 
 ```
-python main.py --task shared_max_context --model anthropic/claude-sonnet-4-5-20250929
+python main.py --task shared_max_context --model_under_test openai/gpt-5.2-2025-12-11
 ```
 
 You can also configure the evaluator model if desired - our public benchmarks use Sonnet 4.5.
