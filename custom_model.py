@@ -74,9 +74,11 @@ async def query_with_truncation_retry(
 
     # first, truncate using context window
     length = await llm.count_tokens(input=[TextInput(text=prompt)])
+    ratio = 1.0
     if length > context_window:
         truncation_record["initial_context_window_truncation"] += 1
-        shorten(context_window / length)
+        ratio = context_window / length
+        prompt = shorten(ratio)
 
     # shorten until query succeeds
     while True:
@@ -85,7 +87,8 @@ async def query_with_truncation_retry(
         except MaxContextWindowExceededError:
             # record, shorten prompt, and try again
             truncation_record["max_context_window_exceeded_error_truncation"] += 1
-            prompt = shorten(0.9)
+            ratio *= 0.9
+            prompt = shorten(ratio)
 
 
 async def get_custom_model(model_name: str, parameters: dict[str, Any]):
@@ -120,18 +123,17 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
             )
 
             # build output object
-            context = {}
-            context["truncation_record"] = truncation_record
-            query_result.metadata.extra
+            output_context = {**context, **query_result.metadata.extra}
+            output_context["truncation_record"] = truncation_record
             if query_result.reasoning:
-                context["reasoning"] = query_result.reasoning
+                output_context["reasoning"] = query_result.reasoning
 
             return OutputObject(
                 llm_output=query_result.output_text_str,
                 in_tokens=query_result.metadata.total_input_tokens,
                 out_tokens=query_result.metadata.total_output_tokens,
                 duration=query_result.metadata.duration_seconds,
-                output_context=context,
+                output_context=output_context,
             )
         except Exception as e:
             print(f"Error querying custom model: {e}")
