@@ -130,9 +130,13 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
 
             return OutputObject(
                 llm_output=query_result.output_text_str,
-                in_tokens=query_result.metadata.total_input_tokens,
-                out_tokens=query_result.metadata.total_output_tokens,
+                in_tokens=query_result.metadata.in_tokens,
+                out_tokens=query_result.metadata.out_tokens,
+                reasoning_tokens=query_result.metadata.reasoning_tokens,
+                cache_read_tokens=query_result.metadata.cache_read_tokens,
+                cache_write_tokens=query_result.metadata.cache_write_tokens,
                 duration=query_result.metadata.duration_seconds,
+                cost=query_result.metadata.cost.total if query_result.metadata.cost else None,
                 output_context=output_context,
             )
         except Exception as e:
