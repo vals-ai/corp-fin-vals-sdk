@@ -7,7 +7,7 @@ license = { file = "LICENSE" }
 requires-python = ">=3.12"
 
 dependencies = [
-  "valsai==0.3.9", # TODO: update to version with full metadata
+  "valsai==0.3.9",
   "model-library==0.1.11",
   "pypandoc",
   "dotenv",
