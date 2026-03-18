@@ -59,7 +59,7 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
             token_retry_params=TokenRetryParams.model_validate(token_retry_params),
         )
 
-    async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any]):
+    async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any], question_id: str, run_id: str):
         try:
             # build prompt
             doc_content = await get_document_content(files)
@@ -69,7 +69,8 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
 
             # query
             query_result, truncation_record = await query_with_truncation_retry(
-                llm=model, doc_text=doc_content, build_prompt=build_prompt
+                llm=model, doc_text=doc_content, build_prompt=build_prompt,
+                question_id=question_id, run_id=run_id,
             )
 
             # build output object
