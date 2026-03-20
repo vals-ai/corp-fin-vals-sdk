@@ -1,12 +1,10 @@
 import traceback
-from collections.abc import Callable
 from io import BytesIO
-from math import floor
 from typing import Any
 
-from model_library.base import LLM, LLMConfig, QueryResult, TextInput, TokenRetryParams
-from model_library.exceptions import MaxContextWindowExceededError
-from model_library.registry_utils import get_model_input_context_window, get_registry_model
+from model_library.base import LLMConfig, TokenRetryParams
+from model_library.query_utils import query_with_truncation_retry
+from model_library.registry_utils import get_registry_model
 
 INSTRUCTION_CORP_FIN = """
 I will give you a question and a document.
@@ -43,54 +41,6 @@ async def get_document_content(files: dict[str, BytesIO]) -> str:
     return document
 
 
-async def query_with_truncation_retry(
-    llm: LLM,
-    doc_text: str,
-    build_prompt: Callable[[str], str],
-) -> tuple[QueryResult, dict[str, int]]:
-    """
-    Query an LLM with automatic truncation retry on context window errors
-
-    First truncates the document below the context window
-    Then, on MaxContextWindowExceeded error, until the query suceeds:
-        - Shortens the document text by 10% and retries
-    """
-
-    registry_key = llm._registry_key
-    if not registry_key:
-        raise ValueError("Non registry model cannot be used with truncation")
-    context_window = get_model_input_context_window(model_name=registry_key)
-
-    truncation_record = {
-        "initial_context_window_truncation": 0,
-        "max_context_window_exceeded_error_truncation": 0,
-    }
-
-    prompt = build_prompt(doc_text)
-
-    def shorten(shortening_ratio: float) -> str:
-        new_doc_text = doc_text[: floor(len(doc_text) * shortening_ratio)]
-        return build_prompt(new_doc_text)
-
-    # first, truncate using context window
-    length = await llm.count_tokens(input=[TextInput(text=prompt)])
-    ratio = 1.0
-    if length > context_window:
-        truncation_record["initial_context_window_truncation"] += 1
-        ratio = context_window / length
-        prompt = shorten(ratio)
-
-    # shorten until query succeeds
-    while True:
-        try:
-            return (await llm.query(prompt), truncation_record)
-        except MaxContextWindowExceededError:
-            # record, shorten prompt, and try again
-            truncation_record["max_context_window_exceeded_error_truncation"] += 1
-            ratio *= 0.9
-            prompt = shorten(ratio)
-
-
 async def get_custom_model(model_name: str, parameters: dict[str, Any]):
     from vals.sdk.types import OutputObject
 
@@ -109,7 +59,7 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
             token_retry_params=TokenRetryParams.model_validate(token_retry_params),
         )
 
-    async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any]):
+    async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any], question_id: str, run_id: str):
         try:
             # build prompt
             doc_content = await get_document_content(files)
@@ -119,12 +69,12 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
 
             # query
             query_result, truncation_record = await query_with_truncation_retry(
-                llm=model, doc_text=doc_content, build_prompt=build_prompt
+                llm=model, doc_text=doc_content, build_prompt=build_prompt,
+                question_id=question_id, run_id=run_id,
             )
 
             # build output object
-            output_context = {**context, **query_result.metadata.extra}
-            output_context["truncation_record"] = truncation_record
+            output_context = {**context, **query_result.metadata.extra, "truncation_record": truncation_record}
             if query_result.reasoning:
                 output_context["reasoning"] = query_result.reasoning
 
