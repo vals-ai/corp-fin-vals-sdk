@@ -2,7 +2,7 @@ import traceback
 from io import BytesIO
 from typing import Any
 
-from model_library.base import LLMConfig, TokenRetryParams
+from model_library.base import LLMConfig
 from model_library.query_utils import query_with_truncation_retry
 from model_library.registry_utils import get_registry_model
 
@@ -52,12 +52,6 @@ async def get_custom_model(model_name: str, parameters: dict[str, Any]):
         model_name,
         override_config=override_config,
     )
-
-    token_retry_params = parameters.get("token_retry_params", None)
-    if token_retry_params:
-        await model.init_token_retry(
-            token_retry_params=TokenRetryParams.model_validate(token_retry_params),
-        )
 
     async def custom_call(test_input: str, files: dict[str, BytesIO], context: dict[str, Any], question_id: str, run_id: str):
         try:
