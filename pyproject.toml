@@ -28,3 +28,6 @@ exclude = [
   ".*",
 ]
 reportExplicitAny = false
+
+[tool.uv]
+exclude-newer = "7 days"
